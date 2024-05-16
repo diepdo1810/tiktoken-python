@@ -1,39 +1,32 @@
-from flask import Flask, request, jsonify
-import tiktoken
+from flask import Flask, request, jsonify, make_response
 
 app = Flask(__name__)
 
-# Load encoding models
-encodings = {
-    'gpt-3.5-turbo': tiktoken.encoding_for_model('gpt-3.5-turbo'),
-    'gpt-4': tiktoken.encoding_for_model('gpt-4'),
-}
-
 @app.route('/calculate_tokens', methods=['POST'])
 def calculate_tokens():
-    data = request.json
+    data = request.get_json()
+    if not data:
+        response = make_response(jsonify({"error": "Invalid JSON"}), 400)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
 
-    prompt = data.get('prompt', '')
-    model = data.get('model', 'gpt-3.5-turbo')
-    language = data.get('language', 'English')
+    prompt = data.get('prompt')
+    model = data.get('model')
+    language = data.get('language')
 
-    if model not in encodings:
-        return jsonify({'error': 'Model not supported'}), 400
+    if not prompt or not model or not language:
+        response = make_response(jsonify({"error": "Missing fields"}), 400)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
 
-    if language not in ['Vietnamese', 'English']:
-        return jsonify({'error': 'Language not supported'}), 400
+    # Thực hiện tính toán tokens dựa trên prompt, model và language
+    # Đây chỉ là ví dụ giả định, bạn cần thay thế bằng logic thật của bạn
+    token_count = len(prompt.split())
 
-    encoding = encodings[model]
-    tokens = encoding.encode(prompt)
-    token_count = len(tokens)
-
-    return jsonify({
-        'prompt': prompt,
-        'model': model,
-        'language': language,
-        'token_count': token_count
-    })
+    response = make_response(jsonify({"tokens": token_count}))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
 
