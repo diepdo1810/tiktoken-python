@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/calculate_tokens": {"origins": "http://localhost:8080"}}) 
+CORS(app, resources={r"/calculate_tokens": {"origins": ["http://localhost:8080", "https://token-converter-phi.vercel.app"]}}) 
 
 @app.route('/calculate_tokens', methods=['POST'])
 def calculate_tokens():
